@@ -75,7 +75,7 @@ describe('Post controller', () => {
         });
     });
 
-describe('update', () => {
+    describe('update', () => {
         var updatePostStub;
     
         beforeEach(() => {
@@ -140,6 +140,57 @@ describe('update', () => {
 
 
     describe('findPost', () => {
-
-    })
+        var findPostStub;
+        const postId = '507asdghajsdhjgasd';
+        const foundPost = {
+            _id: postId,
+            title: 'Found test post',
+            content: 'Found content',
+            author: 'stswenguser',
+            date: Date.now()
+        };
+    
+        beforeEach(() => {
+            // Before every test case, set up the response object
+            res = {
+                json: sinon.spy(),
+                status: sinon.stub().returns({ end: sinon.spy() })
+            };
+        });
+    
+        afterEach(() => {
+            // Executed after each test case
+            findPostStub.restore();
+        });
+    
+        it('should find and return the specified post', () => {
+            // Arrange
+            findPostStub = sinon.stub(PostModel, 'findPost').withArgs(postId).yields(null, foundPost);
+    
+            req.params = { id: postId };
+    
+            // Act
+            PostController.findPost(req, res);
+    
+            // Assert
+            sinon.assert.calledWith(PostModel.findPost, postId);
+            sinon.assert.calledWith(res.json, foundPost); // Ensure that the response contains the found post
+        });
+    
+        // Error scenario
+        it('should return status 500 on server error', () => {
+            // Arrange
+            findPostStub = sinon.stub(PostModel, 'findPost').withArgs(postId).yields(error);
+    
+            req.params = { id: postId };
+    
+            // Act
+            PostController.findPost(req, res);
+    
+            // Assert
+            sinon.assert.calledWith(PostModel.findPost, postId);
+            sinon.assert.calledWith(res.status, 500);
+            sinon.assert.calledOnce(res.status(500).end);
+        });
+    });
 });
