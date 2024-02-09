@@ -75,7 +75,7 @@ describe('Post controller', () => {
         });
     });
 
-    describe('update', () => {
+describe('update', () => {
         var updatePostStub;
     
         beforeEach(() => {
@@ -93,25 +93,34 @@ describe('Post controller', () => {
     
         it('should update an existing post', () => {
             // Arrange
-            expectedResult = {
+            const updatedPost = {
                 _id: '507asdghajsdhjgasd',
                 title: 'Updated test post',
                 content: 'Updated content',
                 author: 'stswenguser',
                 date: Date.now()
             };
-    
-            // Stub the updatePost function of the PostModel to return the expectedResult
-            updatePostStub = sinon.stub(PostModel, 'updatePost').withArgs(req.params.id, req.body).yields(null, expectedResult);
-    
+        
+            updatePostStub = sinon.stub(PostModel, 'updatePost').yields(null, updatedPost);
+        
+            req.params = { id: '507asdghajsdhjgasd' };
+            req.body = {
+                title: 'Updated test post',
+                content: 'Updated content',
+                author: 'stswenguser'
+            };
+        
             // Act
             PostController.update(req, res);
-    
+        
             // Assert
             sinon.assert.calledWith(PostModel.updatePost, req.params.id, req.body);
-            sinon.assert.calledWith(res.json, sinon.match({ title: req.body.title }));
-            sinon.assert.calledWith(res.json, sinon.match({ content: req.body.content }));
-            sinon.assert.calledWith(res.json, sinon.match({ author: req.body.author }));
+            sinon.assert.calledWith(res.json, updatedPost); // Ensure that the response contains the updated post
+        });
+        
+        afterEach(() => {
+            // Restore the stub after each test
+            updatePostStub.restore();
         });
     
         // Error scenario
@@ -128,6 +137,7 @@ describe('Post controller', () => {
             sinon.assert.calledOnce(res.status(500).end);
         });
     });
+
 
     describe('findPost', () => {
 
