@@ -23,3 +23,18 @@ exports.updatePost = (postId, newData, next) => {
         next(err, updatedPost);
     });
 };
+
+exports.findPost = (postId, next) => {
+    Post.findById(postId, (err, post) => {
+        if (err) {
+            next(err, null);
+        } else if (!post) {
+            // If no post is found with the given ID, return a custom error
+            const error = new Error('Post not found');
+            error.status = 404;
+            next(error, null);
+        } else {
+            next(null, post);
+        }
+    });
+};

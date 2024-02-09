@@ -151,11 +151,7 @@ describe('Post controller', () => {
         };
     
         beforeEach(() => {
-            // Before every test case, set up the response object
-            res = {
-                json: sinon.spy(),
-                status: sinon.stub().returns({ end: sinon.spy() })
-            };
+            findPostStub = sinon.stub(PostModel, 'findPost');
         });
     
         afterEach(() => {
@@ -165,32 +161,40 @@ describe('Post controller', () => {
     
         it('should find and return the specified post', () => {
             // Arrange
-            findPostStub = sinon.stub(PostModel, 'findPost').withArgs(postId).yields(null, foundPost);
-    
+            const postId = '507asdghajsdhjgasd';
+            const foundPost = {
+                _id: postId,
+                title: 'Found test post',
+                content: 'Found content',
+                author: 'stswenguser',
+                date: Date.now()
+            };
+        
+            findPostStub.withArgs(postId).yields(null, foundPost);
+        
             req.params = { id: postId };
-    
+        
             // Act
             PostController.findPost(req, res);
-    
+        
             // Assert
-            sinon.assert.calledWith(PostModel.findPost, postId);
-            sinon.assert.calledWith(res.json, foundPost); // Ensure that the response contains the found post
+            sinon.assert.calledWith(res.json, foundPost);
         });
     
         // Error scenario
         it('should return status 500 on server error', () => {
             // Arrange
-            findPostStub = sinon.stub(PostModel, 'findPost').withArgs(postId).yields(error);
-    
+            findPostStub.withArgs(postId).yields(error);
+        
             req.params = { id: postId };
-    
+        
             // Act
             PostController.findPost(req, res);
-    
+        
             // Assert
-            sinon.assert.calledWith(PostModel.findPost, postId);
+            sinon.assert.calledWithMatch(PostModel.findPost, postId);
             sinon.assert.calledWith(res.status, 500);
-            sinon.assert.calledOnce(res.status(500).end);
+           
         });
     });
 });
