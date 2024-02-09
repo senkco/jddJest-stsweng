@@ -13,7 +13,19 @@ PostController.create = (req, res) => {
 };
 
 PostController.update = (req, res) => {
-
+// Extract post ID from request parameters
+    const postId = req.params.id;
+    
+// Call the updatePost method of PostModel with the post ID and updated data
+    PostModel.updatePost(postId, req.body, (err, updatedPost) => {
+        if (err) {
+            // If there's an error, return status 500
+            return res.status(500).end();
+        } else {
+                // If successful, return the updated post as JSON
+             return res.json(updatedPost);
+        }
+    });
 };
 
 PostController.findPost = (req, res) => {
